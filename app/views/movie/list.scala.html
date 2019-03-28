@@ -1,0 +1,42 @@
+@import modules.movie.Movie
+@(movies: Seq[Movie])(implicit request: MessagesRequestHeader)
+
+@main("Movies") {
+	<a class="ui button" href="@modules.movie.routes.MovieController.createView()">Create movie</a>
+	@request.flash.get("success").map { key =>
+		<div class="ui success message">
+			<div class="header">Success</div>
+			@request.messages(key)
+		</div>
+	}
+	<table class="ui celled table">
+		<thead>
+			<tr>
+				<th>@Messages("Title")</th>
+				<th>@Messages("Description")</th>
+				<th>@Messages("Release Date")</th>
+				<th>@Messages("Country")</th>
+				<th>@Messages("Language")</th>
+				<th>reset</th>
+			</tr>
+		</thead>
+		<tbody>
+			@Option(movies).filter(_.nonEmpty).map { movies =>
+			  @movies.map { movie =>
+				  <tr>
+					  <td>@movie.title</td>
+					  <td>@movie.description</td>
+					  <td>@movie.releaseDate</td>
+					  <td>@movie.country</td>
+					  <td>@movie.language</td>
+
+				  </tr>
+			  }
+			}.getOrElse {
+				<tr>
+					<td colspan="2">No movie found</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+}
