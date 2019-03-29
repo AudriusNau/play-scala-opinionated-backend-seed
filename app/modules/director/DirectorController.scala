@@ -8,8 +8,10 @@ import play.api.mvc.{MessagesAbstractController, MessagesControllerComponents}
 import javax.inject._
 import play.api.data.Form
 import play.api.data.Forms._
+import play.api.data.validation.Constraints.{max, min}
 import play.api.mvc._
 import views.html
+
 import scala.concurrent.{ExecutionContext, Future}
 
 class DirectorController @Inject()(
@@ -22,7 +24,7 @@ class DirectorController @Inject()(
       "lastName" -> nonEmptyText,
       "dateOfBirth" -> localDate,
       "nationality" -> nonEmptyText,
-      "height" -> number,
+      "height" -> number.verifying(min(100), max(240)),
       "gender" -> nonEmptyText
 
     )(CreateDirectorForm.apply)(CreateDirectorForm.unapply)

@@ -10,19 +10,19 @@
 		modules.director.routes.DirectorController.create(),
 		'class -> s"ui form ${if(directorForm.hasErrors) "error" else ""}"
 	) {
-		@inputText(directorForm("firstName"))
-		@inputText(directorForm("lastName"))
-		@inputText(directorForm("dateOfBirth"))
+		@inputText(directorForm("firstName"), '_label -> "First name")
+		@inputText(directorForm("lastName"),'_label -> "Last name")
+		@inputText(directorForm("dateOfBirth"),'_label -> "Date of birth")
 		@select(
 			directorForm("nationality"),
 			Country.values.map(country => (country.nationality, country.nationality)).toSeq,
-			'_label -> "nationality"
+			'_label -> "Nationality"
 		)
-		@inputText(directorForm("height"))
+		@inputText(directorForm("height"),'_label -> "Height")
 		@select(
 			directorForm("gender"),
 			options(List("male","female")),
-			'_label -> "gender"
+			'_label -> "Gender"
 		)
 		@CSRF.formField
 

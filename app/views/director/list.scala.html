@@ -1,8 +1,8 @@
 @import modules.director.Director
 @(directors: Seq[Director])(implicit request: MessagesRequestHeader)
 
-@main("directors") {
-	<a class="ui button" href="@modules.director.routes.DirectorController.createView()">Create movie</a>
+@main("Directors") {
+	<a class="ui button" href="@modules.director.routes.DirectorController.createView()">Create a director</a>
 	@request.flash.get("success").map { key =>
 		<div class="ui success message">
 			<div class="header">Success</div>
@@ -15,9 +15,9 @@
 				<th>@Messages("First Name")</th>
 				<th>@Messages("Last Name")</th>
 				<th>@Messages("Date of birth")</th>
-				<th>@Messages("nationality")</th>
-				<th>@Messages("height")</th>
-				<th>@Messages("gender")</th>
+				<th>@Messages("Nationality")</th>
+				<th>@Messages("Height")</th>
+				<th>@Messages("Gender")</th>
 				<th>reset</th>
 			</tr>
 		</thead>
