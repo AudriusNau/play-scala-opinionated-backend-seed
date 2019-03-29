@@ -1,0 +1,44 @@
+@import modules.actor.Actor
+@(actors: Seq[Actor])(implicit request: MessagesRequestHeader)
+
+@main("Actors") {
+	<a class="ui button" href="@modules.actor.routes.ActorController.createView()">Create a actor</a>
+	@request.flash.get("success").map { key =>
+		<div class="ui success message">
+			<div class="header">Success</div>
+			@request.messages(key)
+		</div>
+	}
+	<table class="ui celled table">
+		<thead>
+			<tr>
+				<th>@Messages("First Name")</th>
+				<th>@Messages("Last Name")</th>
+				<th>@Messages("Date of birth")</th>
+				<th>@Messages("Nationality")</th>
+				<th>@Messages("Height")</th>
+				<th>@Messages("Gender")</th>
+				<th>reset</th>
+			</tr>
+		</thead>
+		<tbody>
+			@Option(actors).filter(_.nonEmpty).map { actors =>
+			  @actors.map { actor =>
+				  <tr>
+					  <td>@actor.firstName</td>
+					  <td>@actor.lastName</td>
+					  <td>@actor.dateOfBirth</td>
+					  <td>@actor.nationality</td>
+					  <td>@actor.height</td>
+					  <td>@actor.gender</td>
+
+				  </tr>
+			  }
+			}.getOrElse {
+				<tr>
+					<td colspan="2">No actor found</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+}

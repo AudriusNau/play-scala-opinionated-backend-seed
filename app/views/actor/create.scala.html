@@ -1,0 +1,33 @@
+@import helper._
+@import modules.utility.twirl.CustomHelpers._
+@import modules.actor.CreateActorForm
+@import modules.movie.Country// isikelti enumams
+
+@(actorForm: Form[CreateActorForm])(implicit request: MessagesRequestHeader)
+
+@main("Create actor") {
+	@form(
+		modules.actor.routes.ActorController.create(),
+		'class -> s"ui form ${if(actorForm.hasErrors) "error" else ""}"
+	) {
+		@inputText(actorForm("firstName"), '_label -> "First name")
+		@inputText(actorForm("lastName"),'_label -> "Last name")
+		@inputText(actorForm("dateOfBirth"),'_label -> "Date of birth")
+		@select(
+			actorForm("nationality"),
+			Country.values.map(country => (country.nationality, country.nationality)).toSeq,
+			'_label -> "Nationality"
+		)
+		@inputText(actorForm("height"),'_label -> "Height")
+		@select(
+			actorForm("gender"),
+			options(List("male","female")),
+			'_label -> "Gender"
+		)
+		@CSRF.formField
+
+		<div class="ui button">
+			<button id="submit" class="ui button" type="submit">Add Actor</button>
+		</div>
+	}
+}

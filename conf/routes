@@ -16,5 +16,9 @@ POST    /movie                      modules.movie.MovieController.create
 GET     /directors                     modules.director.DirectorController.list
 GET     /director                      modules.director.DirectorController.createView
 POST    /director                      modules.director.DirectorController.create
+
+GET     /actors                     modules.actor.ActorController.list
+GET     /actor                      modules.actor.ActorController.createView
+POST    /actor                      modules.actor.ActorController.create
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
