@@ -1,0 +1,33 @@
+@import helper._
+@import modules.utility.twirl.CustomHelpers._
+@import modules.director.CreateDirectorForm
+@import modules.movie.Country// isikelti enumams
+
+@(directorForm: Form[CreateDirectorForm])(implicit request: MessagesRequestHeader)
+
+@main("Create director") {
+	@form(
+		modules.director.routes.DirectorController.create(),
+		'class -> s"ui form ${if(directorForm.hasErrors) "error" else ""}"
+	) {
+		@inputText(directorForm("firstName"))
+		@inputText(directorForm("lastName"))
+		@inputText(directorForm("dateOfBirth"))
+		@select(
+			directorForm("nationality"),
+			Country.values.map(country => (country.nationality, country.nationality)).toSeq,
+			'_label -> "nationality"
+		)
+		@inputText(directorForm("height"))
+		@select(
+			directorForm("gender"),
+			options(List("male","female")),
+			'_label -> "gender"
+		)
+		@CSRF.formField
+
+		<div class="ui button">
+			<button id="submit" class="ui button" type="submit">Add Director</button>
+		</div>
+	}
+}
