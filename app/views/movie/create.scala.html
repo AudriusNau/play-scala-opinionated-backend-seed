@@ -1,27 +1,28 @@
 @import helper._
 @import modules.utility.twirl.CustomHelpers._
-@import modules.movie.CreateMovieForm
-@import modules.movie.Country
+@import modules.movie.MovieForm
+@import modules.util.Country
+@import modules.util.Language
 
-@(movieForm: Form[CreateMovieForm])(implicit request: MessagesRequestHeader)
+@(movieForm: Form[MovieForm])(implicit request: MessagesRequestHeader)
 
 @main("Create movie") {
 	@form(
 		modules.movie.routes.MovieController.create(),
 		'class -> s"ui form ${if(movieForm.hasErrors) "error" else ""}"
 	) {
-		@inputText(movieForm("title"))
-		@inputText(movieForm("description"))
-		@inputText(movieForm("releaseDate"))
+		@inputText(movieForm("title"), '_label -> "Title")
+		@inputText(movieForm("description"),'_label -> "Description")
+		@inputText(movieForm("releaseDate"),'_label -> "Release date")
 		@select(
 			movieForm("country"),
-			Country.values.map(country => (country.countryName, country.countryName)).toSeq,
-			'_label -> "country"
+			Country.values.map(country => (country.dbName, country.countryName)).toSeq,
+			'_label -> "Country"
 		)
 		@select(
 			movieForm("language"),
-			Country.values.map(country => (country.language, country.language)).toSeq,
-			'_label -> "language"
+			Language.values.map(language => (language.dbName, language.name)).toSeq,
+			'_label -> "Language"
 		)
 		@CSRF.formField
 

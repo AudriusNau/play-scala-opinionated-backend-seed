@@ -23,6 +23,8 @@ libraryDependencies += "org.testcontainers" % "postgresql" % "1.10.1" % Test
 
 libraryDependencies += specs2 % Test
 
+libraryDependencies += filters
+
 scalacOptions ++= Seq(
   "-feature",
   "-deprecation",

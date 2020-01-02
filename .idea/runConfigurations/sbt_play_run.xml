@@ -4,6 +4,8 @@
     <setting name="vmparams" value="-Xms512M -Xmx1024M -Xss1M -XX:+CMSClassUnloadingEnabled" />
     <setting name="workingDir" value="$PROJECT_DIR$" />
     <setting name="useSbtShell" value="false" />
-    <method v="2" />
+    <method v="2">
+      <option name="LaunchBrowser.Before.Run" browser="98ca6316-2f89-46d9-a9e5-fa9e2b0625b3" url="http://localhost:9000" />
+    </method>
   </configuration>
 </component>

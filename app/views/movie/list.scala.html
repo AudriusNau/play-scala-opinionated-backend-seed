@@ -1,42 +1,117 @@
-@import modules.movie.Movie
-@(movies: Seq[Movie])(implicit request: MessagesRequestHeader)
+@import modules.movie.MovieExtendedForm
+@import views.html.helper.form
+@import views.html.helper.CSRF
+@import views.html.helper.inputText
+@import views.html.helper.select
+@import modules.movie.SortableField
+@import modules.movie.FilterMovieForm
+@import modules.movie.SortItems
+@import modules.util.Country
+@import modules.util.SortOrder
+@import modules.util.Language
+@(movies: Seq[MovieExtendedForm],filterForm: Form[FilterMovieForm], sortItems: SortItems)(implicit request: MessagesRequestHeader, flash: Flash)
+
+@orderBy(newOrderBy: SortableField.Value) = @{
+	modules.movie.routes.MovieController.list(
+		filterForm("title").value.get,
+		filterForm("description").value.get,
+		filterForm("releaseDate").value.getOrElse(""),
+		Country.findByString(filterForm("country").value.get).get,
+		Language.findByString(filterForm("language").value.get).get,
+		newOrderBy,
+		if (sortItems.order == SortOrder.asc) SortOrder.desc else SortOrder.asc
+	)
+}
 
 @main("Movies") {
-	<a class="ui button" href="@modules.movie.routes.MovieController.createView()">Create movie</a>
-	@request.flash.get("success").map { key =>
-		<div class="ui success message">
-			<div class="header">Success</div>
-			@request.messages(key)
-		</div>
-	}
-	<table class="ui celled table">
-		<thead>
-			<tr>
-				<th>@Messages("Title")</th>
-				<th>@Messages("Description")</th>
-				<th>@Messages("Release Date")</th>
-				<th>@Messages("Country")</th>
-				<th>@Messages("Language")</th>
-				<th>reset</th>
-			</tr>
-		</thead>
-		<tbody>
-			@Option(movies).filter(_.nonEmpty).map { movies =>
-			  @movies.map { movie =>
-				  <tr>
-					  <td>@movie.title</td>
-					  <td>@movie.description</td>
-					  <td>@movie.releaseDate</td>
-					  <td>@movie.country</td>
-					  <td>@movie.language</td>
 
-				  </tr>
-			  }
-			}.getOrElse {
-				<tr>
-					<td colspan="2">No movie found</td>
-				</tr>
-			}
-		</tbody>
-	</table>
+
+	@form(
+		modules.movie.routes.MovieController.list(),
+		'class -> s"ui form ${if(filterForm.hasErrors) "error" else ""}"
+	) {
+
+    <a class="ui button" href="@modules.movie.routes.MovieController.createView()">Add new movie</a>
+    <button id="submit" class="ui primary button" type="submit">Filter</button>
+
+        <table class="ui celled table" style="table-layout: fixed">
+            <thead>
+                <tr>
+                    <th><a class="header" href="@orderBy(SortableField.title)">Title</a></th>
+                    <th><a class="header" href="@orderBy(SortableField.description)">Description</a></th>
+                    <th><a class="header" href="@orderBy(SortableField.releaseDate)">Release date</a></th>
+                    <th><a class="header" href="@orderBy(SortableField.country)">Country</a></th>
+                    <th><a class="header" href="@orderBy(SortableField.language)">Language</a></th>
+                    <th style="width: 70px"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        @inputText(filterForm("title"), '_label -> "")
+                    </td>
+                    <td>
+                        @inputText(filterForm("description"), '_label -> "")
+                    </td>
+                    <td>
+                        @inputText(filterForm("releaseDate"), 'type -> "date", '_label -> "")
+                    </td>
+                    <td>
+                        @select(
+                            filterForm("country"),
+                            Country.values.toSeq.sortBy(_.countryName).map{countryVal => (countryVal.dbName, countryVal.countryName)},
+                            '_class -> "ui search button",
+                            '_label -> ""
+                        )
+                    </td>
+                    <td>
+                        @select(
+                            filterForm("language"),
+                            Language.values.toSeq.sortBy(_.name).map{languageVal => (languageVal.dbName, languageVal.name)},
+                            '_class -> "ui search button",
+                            '_label -> ""
+                        )
+                    </td>
+                    <td>
+                        <a
+                                style="border: none; background-color: transparent; padding: 0; cursor: pointer"
+                                href="@modules.movie.routes.MovieController.list()">
+                            <i class="undo icon"></i>
+                        </a>
+                    </td>
+                </tr>
+
+				}
+				@Option(movies).filter(_.nonEmpty).map { movies =>
+				  @movies.map { movie =>
+					  <tr>
+						  <td>@movie.title</td>
+						  <td>@movie.description</td>
+						  <td>@movie.releaseDate</td>
+						  <td>@movie.country.countryName</td>
+						  <td>@movie.language.name</td>
+
+						  <td style="width: 70px">
+                                @form(
+                                    modules.movie.routes.MovieController.delete(movie.id),
+                                    'class -> s"ui form ${if(filterForm.hasErrors) "error" else ""}"
+                                ) {
+                                    <a style="border: none; background-color: transparent; padding: 0; cursor: pointer"  href="@modules.movie.routes.MovieController.edit(movie.id)">
+                                        <i class="edit icon"></i>
+                                    </a>
+                                    <button style="border: none; background-color: transparent; padding: 0; cursor: pointer" type="submit">
+                                        <i class="trash alternate  icon "></i>
+                                    </button>
+                                }
+                            </td>
+					  </tr>
+				  }
+				}.getOrElse {
+					<tr>
+						<td colspan="2">No movie found</td>
+					</tr>
+				}
+			</tbody>
+
+		</table>
 }

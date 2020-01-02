@@ -1,0 +1,41 @@
+@import helper._
+@import modules.movie.MovieForm
+@import scala.collection.mutable
+@import modules.movie.MovieExtendedForm
+@import modules.util.Country
+@import play.filters.csrf.CSRF.Token
+@import modules.utility.twirl.CustomHelpers._
+@import modules.util.Language
+@(movie:MovieExtendedForm, movieForm: Form[MovieForm])(implicit request: MessagesRequestHeader, flash: Flash)
+
+@main("Edit Movie") {
+	
+	@form(modules.movie.routes.MovieController.update(movie.id),'class -> s"ui form ${if(movieForm.hasErrors) "error" else ""}") {
+		@CSRF.formField
+		@inputText(movieForm("title"), '_label -> "Title")
+		@inputText(movieForm("description"),'_label -> "Description")
+		@inputText(movieForm("releaseDate"),'_label -> "Release date")
+		@select(
+			movieForm("country"),
+			Country.values.map(country => (country.dbName, country.countryName)).toSeq,
+			'_label -> "Country"
+		)
+		@select(
+			movieForm("language"),
+			Language.values.map(languageVal => (languageVal.dbName, languageVal.name)).toSeq,
+			'_label -> "Language"
+		)
+		
+		
+		<div class="ui buttons">
+			<button class="ui positive button">Save</button>
+			<div class="or"></div>
+			<button class="ui button"><a href="@modules.movie.routes.MovieController.list()" class="btn">Cancel</a></button>
+		</div>
+		
+	}
+	
+	
+	
+	
+}

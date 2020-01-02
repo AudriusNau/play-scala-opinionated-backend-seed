@@ -2,59 +2,73 @@ package modules
 
 import java.time.LocalDate
 
-import play.api.data.FormError
-import play.api.data.format.Formatter
-import play.api.libs.json.Json
+import modules.util._
+import play.api.mvc.QueryStringBindable
+
 import scala.language.implicitConversions
+import scala.util.{Failure, Success, Try}
 
 package object movie{
-  def CountryFormFormatter: Formatter[Country.Value] = new Formatter[Country.Value] {
-    def bind(key: String, data: Map[String, String]): Either[List[FormError], Country.Value] = {
-      val value = data.getOrElse(key, "")
-      Country
-        .findByString(value)
-        .map(Right(_))
-        .getOrElse(Left(List(FormError(key, s"Country not found by value:'$value'"))))
-    }
-    def unbind(key: String, value: Country.Value): Map[String, String] = Map(key -> value.toString)
-  }
-  object Country extends Enumeration{
-    protected case class CountryVal private[Country](dbName: String, countryName: String, nationality: String, language: String) extends super.Val
 
-    val USA = CountryVal("US", "USA", "American", "English")
-    val Australia = CountryVal("AU", "Australia", "Australian", "English")
-    val Lithuania = CountryVal("LT", "Lithuania", "Lithuanian", "Lithuanian")
-    val Italy = CountryVal("IT", "Italy", "Italian","Italian")
-    val Spain = CountryVal("ES", "Spain", "Spanish","Spanish")
-    val Sweden = CountryVal("SE", "Sweden", "Swedish","Swedish")
-    val UK = CountryVal("UK", "United Kingdom", "English","English")
-    val Poland = CountryVal("PL", "Poland", "Polish","Polish")
-
-
-    def findByString(value: String): Option[movie.Country.Value] = {
-      values.find(_.toString == value)
-    }
-
-    implicit def valueToCountryVal(x: Value): CountryVal = x.asInstanceOf[CountryVal]
-}
-
-  case class CreateMovieForm(
+  case class MovieForm(
       title: String,
       description:String,
       releaseDate: LocalDate,
-      country: String,
-      language: String
+      country: Country.Value,
+      language: Language.Value
   )
 
-  case class Movie(
+  case class MovieExtendedForm(
       id: Long,
       title: String,
       description:String,
       releaseDate: LocalDate,
-      country: String,
-      language: String)
+      country: Country.Value,
+      language: Language.Value
+  )
 
-  object Movie {
-    implicit val movieFormat = Json.format[Movie]
+  case class FilterMovieForm (
+      title: String,
+      description: String,
+      releaseDate: Option[LocalDate],
+      country: Country.Value,
+      language: Language.Value
+  )
+  object SortableField extends Enumeration {
+    type Field = Value
+    val id = Value("id")
+    val title = Value("title")
+    val description = Value("description")
+    val releaseDate = Value("releaseDate")
+    val country = Value("country")
+    val language = Value("language")
+
+    implicit def queryStringBinder(implicit stringBinder: QueryStringBindable[String]) =
+      new QueryStringBindable[Field] {
+
+        override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, Field]] = {
+          stringBinder.bind(key, params)
+            .map {
+              case Right(s) =>
+                Try(SortableField.withName(s)) match {
+                  case Success(sortField) =>
+                    Right(sortField)
+                  case Failure(_) =>
+                    Left(s"Failed to parse sort field from '$s'")
+                }
+              case Left(baseBinderFailure) =>
+                Left(baseBinderFailure)
+            }
+        }
+        override def unbind(key: String, sortField: Field): String = {
+          stringBinder.unbind(key, sortField.toString)
+        }
+      }
   }
+  case class SortItems(
+      field: SortableField.Value,
+      order: SortOrder.Value
+  )
+
+
 }
