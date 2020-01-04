@@ -29,7 +29,7 @@ GET     /actor/:id                  modules.actor.ActorController.edit(id:Long)
 POST    /actor/:id                  modules.actor.ActorController.update(id:Long)
 POST    /actor/:id/delete           modules.actor.ActorController.delete(id:Long)
 
-GET     /genres                    modules.genre.GenreController.list
+GET     /genres                    modules.genre.GenreController.list(title: String ?= "", orderBy: modules.genre.SortableField.Value ?= modules.genre.SortableField.id, order: modules.util.SortOrder.Value ?= modules.util.SortOrder.asc)
 GET     /genre                     modules.genre.GenreController.createView
 POST    /genre                     modules.genre.GenreController.create
 

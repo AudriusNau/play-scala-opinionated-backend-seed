@@ -1,0 +1,28 @@
+@import helper._
+@import modules.genre.Genre
+@import scala.collection.mutable
+@import play.filters.csrf.CSRF.Token
+@import modules.utility.twirl.CustomHelpers._
+@import modules.genre.GenreExtended
+@(genre:GenreExtended, genreForm: Form[Genre])(implicit request: MessagesRequestHeader)
+
+@main("Edit Genre") {
+	
+	@form(modules.genre.routes.GenreController.update(genre.id),'class -> s"ui form ${if(genreForm.hasErrors) "error" else ""}") {
+		@CSRF.formField
+		@inputText(genreForm("title"), '_label -> "Title")
+
+		
+		
+		<div class="ui buttons">
+			<button class="ui positive button">Save</button>
+			<div class="or"></div>
+			<button class="ui button"><a href="@modules.genre.routes.GenreController.list()" class="btn">Cancel</a></button>
+		</div>
+		
+	}
+	
+	
+	
+	
+}

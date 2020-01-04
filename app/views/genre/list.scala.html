@@ -1,0 +1,79 @@
+@import modules.genre.GenreExtended
+@import views.html.helper.form
+@import views.html.helper.CSRF
+@import modules.genre.Genre
+@import modules.genre.SortItems
+@import modules.genre.SortableField
+@import modules.util.SortOrder
+@import views.html.helper.inputText
+@(genres: Seq[GenreExtended], filterForm: Form[Genre], sortItems: SortItems)(implicit request: MessagesRequestHeader)
+	@orderBy(newOrderBy: SortableField.Value) = @{
+		modules.genre.routes.GenreController.list(
+			filterForm("title").value.get,
+			newOrderBy,
+			if (sortItems.order == SortOrder.asc) SortOrder.desc else SortOrder.asc
+		)
+	}
+
+@main("Genres") {
+	@form(
+		modules.genre.routes.GenreController.list(),
+		'class -> s"ui form ${if(filterForm.hasErrors) "error" else ""}"
+	) {
+
+		<a class="ui button" href="@modules.genre.routes.GenreController.createView()">Create genre</a>
+		<button id="submit" class="ui primary button" type="submit">Filter</button>
+		<table class="ui celled table"  style="table-layout: fixed">
+		<thead>
+			<tr>
+				<th><a class="header" href="@orderBy(SortableField.title)">Title</a></th>
+				<th style="width: 70px"></th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td>
+				@inputText(
+					filterForm("title"),
+					'_label -> ""
+				)
+				</td>
+				<td>
+					<a
+					style="border: none; background-color: transparent; padding: 0; cursor: pointer"
+					href="@modules.genre.routes.GenreController.list()">
+						<i class="undo icon"></i>
+					</a>
+				</td>
+			</tr>
+		}
+			@Option(genres).filter(_.nonEmpty).map { genres =>
+			  @genres.map { genre =>
+				  <tr>
+					  <td>@genre.title</td>
+					  <td style="width: 70px">
+					  @form(
+						  modules.genre.routes.GenreController.delete(genre.id),
+						  'class -> s"ui form ${if(filterForm.hasErrors) "error" else ""}"
+					  ) {@CSRF.formField
+						  <a
+						  style="border: none; background-color: transparent; padding: 0; cursor: pointer"
+						  href="@modules.genre.routes.GenreController.edit(genre.id)">
+							  <i class="edit outline icon"></i>
+						  </a>
+						  <button style="border: none; background-color: transparent; padding: 0; cursor: pointer" onclick="return confirm('Are you sure you want to delete?');"
+						  type="submit">
+							  <i class="trash alternate outline icon red"></i>
+						  </button>
+					  }
+					  </td>
+				  </tr>
+			  }
+			}.getOrElse {
+				<tr>
+					<td colspan="2">No genres found</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+}
