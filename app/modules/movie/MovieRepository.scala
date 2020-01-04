@@ -34,11 +34,7 @@ class MovieRepository @Inject()(
     val filteredQuery = filter(title, description, releaseDate, country, language)
     val sortedQuery = filteredQuery.sortBy{ m => sort(m, orderBy, order) }
 
-     val movieList = db.run {
-        sortedQuery
-          .result
-      }
-    movieList
+      db.run {sortedQuery.result}
   }
 
 

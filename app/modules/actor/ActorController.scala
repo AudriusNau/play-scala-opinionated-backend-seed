@@ -1,6 +1,5 @@
 package modules.actor
 
-import java.time.LocalDate
 
 import javax.inject._
 import modules.util._

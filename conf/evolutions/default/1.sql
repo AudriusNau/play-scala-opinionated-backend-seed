@@ -46,7 +46,12 @@ insert into "actors" ("firstName", "lastName", "dateOfBirth", "nationality", "he
 	values ('Rovan', 'Atkinson', '1981-10-27', 'PL', '174', 'm');
 insert into "actors" ("firstName", "lastName", "dateOfBirth", "nationality", "height", "gender")
 	values ('Siegel', 'Makamas', '2002-09-01', 'LT', '161', 'f');
-
+insert into "actors" ("firstName", "lastName", "dateOfBirth", "nationality", "height", "gender")
+	values ('Kevin', 'Rodriguez', '1964-01-16', 'AU', '185', 'm');
+insert into "actors" ("firstName", "lastName", "dateOfBirth", "nationality", "height", "gender")
+	values ('Clementine', 'Johannes', '1989-04-18', 'PL', '178', 'f');
+	insert into "actors" ("firstName", "lastName", "dateOfBirth", "nationality", "height", "gender")
+	values ('Mandarin', 'Hannes', '1989-04-18', 'LT', '203', 'm');
 
 insert into "directors" ("firstName", "lastName", "dateOfBirth", "nationality", "height", "gender")
 	values ('Kevin', 'Rodriguez', '1964-01-16', 'AU', '185', 'm');

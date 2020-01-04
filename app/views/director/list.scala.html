@@ -1,44 +1,139 @@
-@import modules.director.Director
-@(directors: Seq[Director])(implicit request: MessagesRequestHeader)
+@import modules.director.DirectorExtendedForm
+@import views.html.helper.form
+@import views.html.helper.CSRF
+@import modules.util.Country
+@import modules.director.DirectorFilterForm
+@import modules.director.SortItems
+@import modules.director.SortableField
+@import modules.util.Gender
+@import modules.util.SortOrder
+@import views.html.helper.inputText
+@import views.html.helper.select
+@(directors: Seq[DirectorExtendedForm],filterForm: Form[DirectorFilterForm], sortItems: SortItems)(implicit request: MessagesRequestHeader)
 
+@orderBy(newOrderBy: SortableField.Value) = @{
+	modules.director.routes.DirectorController.list(
+		filterForm("firstName").value.get,
+		filterForm("lastName").value.get,
+		filterForm("dateOfBirth").value.getOrElse(""),
+		Country.findByString(filterForm("nationality").value.get).get,
+		filterForm("heightMin").value.get.toInt,
+		filterForm("heightMax").value.get.toInt,
+		Gender.findByString(filterForm("gender").value.get).get,
+		newOrderBy,
+		if (sortItems.order == SortOrder.asc) SortOrder.desc else SortOrder.asc
+	)
+}
 @main("Directors") {
-	<a class="ui button" href="@modules.director.routes.DirectorController.createView()">Create a director</a>
-	@request.flash.get("success").map { key =>
-		<div class="ui success message">
-			<div class="header">Success</div>
-			@request.messages(key)
-		</div>
-	}
-	<table class="ui celled table">
-		<thead>
-			<tr>
-				<th>@Messages("First Name")</th>
-				<th>@Messages("Last Name")</th>
-				<th>@Messages("Date of birth")</th>
-				<th>@Messages("Nationality")</th>
-				<th>@Messages("Height")</th>
-				<th>@Messages("Gender")</th>
-				<th>reset</th>
-			</tr>
-		</thead>
-		<tbody>
-			@Option(directors).filter(_.nonEmpty).map { directors =>
-			  @directors.map { director =>
-				  <tr>
-					  <td>@director.firstName</td>
-					  <td>@director.lastName</td>
-					  <td>@director.dateOfBirth</td>
-					  <td>@director.nationality</td>
-					  <td>@director.height</td>
-					  <td>@director.gender</td>
-
-				  </tr>
-			  }
-			}.getOrElse {
+	
+	@form(
+		modules.director.routes.DirectorController.list(),
+		'class -> s"ui form ${if(filterForm.hasErrors) "error" else ""}"
+	) {
+		
+		<a class="ui button" href="@modules.director.routes.DirectorController.createView()">Create director</a>
+		<button id="submit" class="ui primary button" type="submit">Filter</button>
+		
+		<table class="ui celled table" style="table-layout: fixed">
+			<thead>
 				<tr>
-					<td colspan="2">No director found</td>
+					<th><a class="header" href="@orderBy(SortableField.firstName)">Name</a></th>
+					<th><a class="header" href="@orderBy(SortableField.lastName)">Last name</a></th>
+					<th><a class="header" href="@orderBy(SortableField.dateOfBirth)">Date of birth</a></th>
+					<th><a class="header" href="@orderBy(SortableField.nationality)">Nationality</a></th>
+					<th><a class="header" href="@orderBy(SortableField.height)">Height</a></th>
+					<th>Gender</th>
+					<th style="width: 70px"></th>
 				</tr>
-			}
-		</tbody>
-	</table>
+			</thead>
+			<tbody>
+				<tr>
+					<td>
+					@inputText(
+						filterForm("firstName"),
+						'_label -> ""
+					)
+					</td>
+					<td>
+					@inputText(
+						filterForm("lastName"),
+						'_label -> ""
+					)
+					</td>
+					<td>
+					@inputText(
+						filterForm("birthDate"),
+						'type -> "date",
+						'_label -> ""
+					)
+					</td>
+					<td>
+					@select(
+						filterForm("nationality"),
+						Country.values.toSeq.sortBy(_.nationality).map{nationalityVal => (nationalityVal.dbName, nationalityVal.nationality)},
+						'_class -> "ui search button",
+						'_label -> ""
+					)
+					</td>
+					<td>
+						@inputText(
+							filterForm("heightMin"),
+							'_label -> "",
+							'type -> "number"
+						)
+						@inputText(
+							filterForm("heightMax"),
+							'_label -> "",
+							'type -> "number"
+						)
+					</td>
+					<td>
+					@select(
+						filterForm("gender"),
+						Gender.values.toSeq.sortBy(_.gender).map{genderVal => (genderVal.dbName, genderVal.gender)},
+						'_class -> "ui search button",
+						'_label -> ""
+					)
+					</td>
+					<td>
+						<a
+						style="border: none; background-color: transparent; padding: 0; cursor: pointer"
+						href="@modules.director.routes.DirectorController.list()">
+							<i class="undo icon"></i>
+						</a>
+					</td>
+				</tr>
+				}
+	@Option(directors).filter(_.nonEmpty).map { directors =>
+		@directors.map { director =>
+			<tr>
+				<td>@director.firstName</td>
+				<td>@director.lastName</td>
+				<td>@director.dateOfBirth</td>
+				<td>@director.nationality.nationality</td>
+				<td>@director.height</td>
+				<td>@director.gender.gender</td>
+				<td style="width: 70px">
+					@form(
+						modules.director.routes.DirectorController.delete(director.id),
+						'class -> s"ui form ${if(filterForm.hasErrors) "error" else ""}"
+					) {@CSRF.formField
+						<a style="border: none; background-color: transparent; padding: 0; cursor: pointer"  href="@modules.director.routes.DirectorController.edit(director.id)">
+							<i class="edit icon"></i>
+						</a>
+						<button style="border: none; background-color: transparent; padding: 0; cursor: pointer" type="submit" onclick="return confirm('Are you sure you want to delete?');">
+							<i class="trash alternate  icon "></i>
+						</button>
+					}@CSRF.formField
+				</td>
+			</tr>
+		}
+	}.getOrElse {
+		<tr>
+			<td colspan="2">No director found</td>
+		</tr>
+	}
+</tbody>
+</table>
+	
 }

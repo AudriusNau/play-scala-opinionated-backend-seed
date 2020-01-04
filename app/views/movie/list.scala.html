@@ -25,13 +25,12 @@
 
 @main("Movies") {
 
-
 	@form(
 		modules.movie.routes.MovieController.list(),
 		'class -> s"ui form ${if(filterForm.hasErrors) "error" else ""}"
 	) {
 
-    <a class="ui button" href="@modules.movie.routes.MovieController.createView()">Add new movie</a>
+    <a class="ui button" href="@modules.movie.routes.MovieController.createView()">Create movie</a>
     <button id="submit" class="ui primary button" type="submit">Filter</button>
 
         <table class="ui celled table" style="table-layout: fixed">
@@ -95,13 +94,14 @@
                                 @form(
                                     modules.movie.routes.MovieController.delete(movie.id),
                                     'class -> s"ui form ${if(filterForm.hasErrors) "error" else ""}"
-                                ) {
+                                ) {@CSRF.formField
                                     <a style="border: none; background-color: transparent; padding: 0; cursor: pointer"  href="@modules.movie.routes.MovieController.edit(movie.id)">
                                         <i class="edit icon"></i>
                                     </a>
-                                    <button style="border: none; background-color: transparent; padding: 0; cursor: pointer" type="submit">
+                                    <button style="border: none; background-color: transparent; padding: 0; cursor: pointer" type="submit" onclick="return confirm('Are you sure you want to delete?');">
                                         <i class="trash alternate  icon "></i>
                                     </button>
+
                                 }
                             </td>
 					  </tr>

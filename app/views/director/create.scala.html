@@ -1,9 +1,10 @@
 @import helper._
 @import modules.utility.twirl.CustomHelpers._
-@import modules.director.CreateDirectorForm
-@import modules.movie.Country// isikelti enumams
+@import modules.director.DirectorForm
+@import modules.util.Country// isikelti enumams
 
-@(directorForm: Form[CreateDirectorForm])(implicit request: MessagesRequestHeader)
+@import modules.util.Gender
+@(directorForm: Form[DirectorForm])(implicit request: MessagesRequestHeader)
 
 @main("Create director") {
 	@form(
@@ -15,13 +16,13 @@
 		@inputText(directorForm("dateOfBirth"),'_label -> "Date of birth")
 		@select(
 			directorForm("nationality"),
-			Country.values.map(country => (country.nationality, country.nationality)).toSeq,
+			Country.values.map(country => (country.dbName, country.nationality)).toSeq,
 			'_label -> "Nationality"
 		)
 		@inputText(directorForm("height"),'_label -> "Height")
 		@select(
 			directorForm("gender"),
-			options(List("male","female")),
+			Gender.values.map(gender => (gender.dbName, gender.gender)).toSeq,
 			'_label -> "Gender"
 		)
 		@CSRF.formField

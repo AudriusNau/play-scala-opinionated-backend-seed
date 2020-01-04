@@ -13,7 +13,7 @@ GET     /movie/:id                  modules.movie.MovieController.edit(id:Long)
 POST    /movie/:id                  modules.movie.MovieController.update(id:Long)
 POST    /movie/:id/delete           modules.movie.MovieController.delete(id:Long)
 
-GET     /directors                    modules.director.DirectorController.list
+GET     /directors                    modules.director.DirectorController.list(firstName: String ?= "",lastName: String ?= "", birthDate ?= "", nationality: modules.util.Country.Value ?= modules.util.Country.NoCountry, heightMin: Int ?= 0, heightMax: Int ?= 230, gender: modules.util.Gender.Value ?= modules.util.Gender.Other, orderBy: modules.director.SortableField.Value ?= modules.director.SortableField.id, order: modules.util.SortOrder.Value ?= modules.util.SortOrder.asc)
 GET     /director                      modules.director.DirectorController.createView
 POST    /director                      modules.director.DirectorController.create
 

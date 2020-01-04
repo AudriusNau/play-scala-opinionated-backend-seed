@@ -1,0 +1,42 @@
+@import helper._
+@import modules.director.DirectorForm
+@import scala.collection.mutable
+@import modules.director.DirectorExtendedForm
+@import modules.util.Country
+@import play.filters.csrf.CSRF.Token
+@import modules.utility.twirl.CustomHelpers._
+@import modules.util.Gender
+@(director:DirectorExtendedForm, directorForm: Form[DirectorForm])(implicit request: MessagesRequestHeader)
+
+@main("Edit Director") {
+	
+	@form(modules.director.routes.DirectorController.update(director.id),'class -> s"ui form ${if(directorForm.hasErrors) "error" else ""}") {
+		@CSRF.formField
+		@inputText(directorForm("firstName"), '_label -> "First name")
+		@inputText(directorForm("lastName"),'_label -> "Last name")
+		@inputText(directorForm("dateOfBirth"),'_label -> "Date of birth")
+		@select(
+			directorForm("nationality"),
+			Gender.values.map(gender => (gender.dbName, gender.gender)).toSeq,
+			'_label -> "Nationality"
+		)
+		@inputText(directorForm("height"),'_label -> "Height")
+		@select(
+			directorForm("gender"),
+			options(List("male","female")),
+			'_label -> "Gender"
+		)
+		
+		
+		<div class="ui buttons">
+			<button class="ui positive button">Save</button>
+			<div class="or"></div>
+			<button class="ui button"><a href="@modules.director.routes.DirectorController.list()" class="btn">Cancel</a></button>
+		</div>
+		
+	}
+	
+	
+	
+	
+}
