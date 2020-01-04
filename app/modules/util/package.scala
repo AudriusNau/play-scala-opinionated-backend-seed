@@ -161,6 +161,55 @@ package object util {
         }
       }
   }
+  def GenderFormatter: Formatter[Gender.Value] = new Formatter[Gender.Value] {
+    def bind(key: String, data: Map[String, String]): Either[List[FormError], Gender.Value] = {
+      val value = data.getOrElse(key, "")
+      Gender
+        .findByString(value)
+        .map(Right(_))
+        .getOrElse(Left(List(FormError(key, s"Gender not found by value:'$value'"))))
+    }
+    def unbind(key: String, value: Gender.Value): Map[String, String] = Map(key -> value.dbName)
+  }
+
+  object Gender extends Enumeration {
+    protected case class GenderVal private[Gender](dbName: String, gender: String) extends Val(dbName)
+
+    val Female = GenderVal("f", "Female")
+    val Male = GenderVal("m", "Male")
+    val Other = GenderVal("", "")
+
+    implicit def valueToCountryVal(x: Value): GenderVal = x.asInstanceOf[GenderVal]
+
+    def findByString(value: String) = Option(
+      value match {
+        case "f" => Female
+        case "m" => Male
+        case _ => Other
+      }
+    )
+
+    implicit def queryStringBinder(implicit stringBinder: QueryStringBindable[String]) =
+      new QueryStringBindable[Gender.Value] {
+        override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, Gender.Value]] = {
+          stringBinder.bind(key, params)
+            .map {
+              case Right(s) =>
+                Try(Gender.findByString(s)) match {
+                  case Success(gender) =>
+                    Right(gender.get)
+                  case Failure(_) =>
+                    Left(s"Failed to parse gender from '$s'")
+                }
+              case Left(baseBinderFailure) =>
+                Left(baseBinderFailure)
+            }
+        }
+        override def unbind(key: String, gender: Gender.Value): String = {
+          stringBinder.unbind(key, gender.dbName)
+        }
+      }
+  }
   def parseDate(date: String): Option[LocalDate] = {
     if (date == "") None
     else {

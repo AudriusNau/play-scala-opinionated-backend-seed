@@ -52,6 +52,8 @@ insert into "directors" ("firstName", "lastName", "dateOfBirth", "nationality", 
 	values ('Kevin', 'Rodriguez', '1964-01-16', 'AU', '185', 'm');
 insert into "directors" ("firstName", "lastName", "dateOfBirth", "nationality", "height", "gender")
 	values ('Clementine', 'Johannes', '1989-04-18', 'PL', '178', 'f');
+	insert into "directors" ("firstName", "lastName", "dateOfBirth", "nationality", "height", "gender")
+	values ('Mandarin', 'Hannes', '1989-04-18', 'LT', '203', 'm');
 
 insert into "movies" ("title", "description", "releaseDate", "country", "language")
 	values ('Narnia movie', 'Fantastic movie about 4 siblings', '2014-06-15', 'PL', 'EN');

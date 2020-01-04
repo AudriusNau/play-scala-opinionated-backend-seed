@@ -21,7 +21,7 @@ GET     /director/:id                  modules.director.DirectorController.edit(
 POST    /director/:id                  modules.director.DirectorController.update(id:Long)
 POST    /director/:id/delete           modules.director.DirectorController.delete(id:Long)
 
-GET     /actors                     modules.actor.ActorController.list
+GET     /actors                     modules.actor.ActorController.list(firstName: String ?= "",lastName: String ?= "", birthDate ?= "", nationality: modules.util.Country.Value ?= modules.util.Country.NoCountry, heightMin: Int ?= 0, heightMax: Int ?= 230, gender: modules.util.Gender.Value ?= modules.util.Gender.Other, orderBy: modules.actor.SortableField.Value ?= modules.actor.SortableField.id, order: modules.util.SortOrder.Value ?= modules.util.SortOrder.asc)
 GET     /actor                      modules.actor.ActorController.createView
 POST    /actor                      modules.actor.ActorController.create
 #edit actor

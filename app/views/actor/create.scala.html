@@ -1,11 +1,12 @@
 @import helper._
 @import modules.utility.twirl.CustomHelpers._
-@import modules.actor.CreateActorForm
-@import modules.movie.Country// isikelti enumams
-
-@(actorForm: Form[CreateActorForm])(implicit request: MessagesRequestHeader)
+@import modules.actor.ActorForm
+@import modules.util.Country
+@import modules.util.Gender
+@(actorForm: Form[ActorForm])(implicit request: MessagesRequestHeader, flash: Flash)
 
 @main("Create actor") {
+
 	@form(
 		modules.actor.routes.ActorController.create(),
 		'class -> s"ui form ${if(actorForm.hasErrors) "error" else ""}"
@@ -15,13 +16,13 @@
 		@inputText(actorForm("dateOfBirth"),'_label -> "Date of birth")
 		@select(
 			actorForm("nationality"),
-			Country.values.map(country => (country.nationality, country.nationality)).toSeq,
+			Country.values.map(country => (country.dbName, country.nationality)).toSeq,
 			'_label -> "Nationality"
 		)
 		@inputText(actorForm("height"),'_label -> "Height")
 		@select(
 			actorForm("gender"),
-			options(List("male","female")),
+			Gender.values.map(gender => (gender.dbName, gender.gender)).toSeq,
 			'_label -> "Gender"
 		)
 		@CSRF.formField

@@ -1,0 +1,42 @@
+@import helper._
+@import modules.actor.ActorForm
+@import scala.collection.mutable
+@import modules.actor.ActorExtendedForm
+@import modules.util.Country
+@import play.filters.csrf.CSRF.Token
+@import modules.utility.twirl.CustomHelpers._
+@import modules.util.Gender
+@(actor:ActorExtendedForm, actorForm: Form[ActorForm])(implicit request: MessagesRequestHeader, flash: Flash)
+
+@main("Edit Actor") {
+
+	@form(modules.actor.routes.ActorController.update(actor.id),'class -> s"ui form ${if(actorForm.hasErrors) "error" else ""}") {
+		@CSRF.formField
+			@inputText(actorForm("firstName"), '_label -> "First name")
+			@inputText(actorForm("lastName"),'_label -> "Last name")
+			@inputText(actorForm("dateOfBirth"),'_label -> "Date of birth")
+			@select(
+				actorForm("nationality"),
+				Country.values.map(country => (country.dbName, country.nationality)).toSeq,
+				'_label -> "Nationality"
+			)
+			@inputText(actorForm("height"),'_label -> "Height")
+			@select(
+				actorForm("gender"),
+				Gender.values.map(gender => (gender.dbName, gender.gender)).toSeq,
+				'_label -> "Gender"
+			)
+
+
+		<div class="ui buttons">
+			<button class="ui positive button">Save</button>
+			<div class="or"></div>
+			<button class="ui button"><a href="@modules.actor.routes.ActorController.list()" class="btn">Cancel</a></button>
+		</div>
+
+	}
+
+
+
+
+}

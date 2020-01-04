@@ -1,44 +1,139 @@
-@import modules.actor.Actor
-@(actors: Seq[Actor])(implicit request: MessagesRequestHeader)
+@import modules.actor.ActorExtendedForm
+@import views.html.helper.form
+@import views.html.helper.CSRF
+@import modules.util.Country
+@import modules.actor.ActorFilterForm
+@import modules.actor.SortItems
+@import modules.actor.SortableField
+@import modules.util.Gender
+@import modules.util.SortOrder
+@import views.html.helper.inputText
+@import views.html.helper.select
+@(actors: Seq[ActorExtendedForm],filterForm: Form[ActorFilterForm], sortItems: SortItems)(implicit request: MessagesRequestHeader)
 
+@orderBy(newOrderBy: SortableField.Value) = @{
+	modules.actor.routes.ActorController.list(
+		filterForm("firstName").value.get,
+		filterForm("lastName").value.get,
+		filterForm("dateOfBirth").value.getOrElse(""),
+		Country.findByString(filterForm("nationality").value.get).get,
+		filterForm("heightMin").value.get.toInt,
+        filterForm("heightMax").value.get.toInt,
+		Gender.findByString(filterForm("gender").value.get).get,
+		newOrderBy,
+		if (sortItems.order == SortOrder.asc) SortOrder.desc else SortOrder.asc
+	)
+}
 @main("Actors") {
-	<a class="ui button" href="@modules.actor.routes.ActorController.createView()">Create a actor</a>
-	@request.flash.get("success").map { key =>
-		<div class="ui success message">
-			<div class="header">Success</div>
-			@request.messages(key)
-		</div>
-	}
-	<table class="ui celled table">
-		<thead>
-			<tr>
-				<th>@Messages("First Name")</th>
-				<th>@Messages("Last Name")</th>
-				<th>@Messages("Date of birth")</th>
-				<th>@Messages("Nationality")</th>
-				<th>@Messages("Height")</th>
-				<th>@Messages("Gender")</th>
-				<th>reset</th>
-			</tr>
-		</thead>
-		<tbody>
-			@Option(actors).filter(_.nonEmpty).map { actors =>
-			  @actors.map { actor =>
-				  <tr>
-					  <td>@actor.firstName</td>
-					  <td>@actor.lastName</td>
-					  <td>@actor.dateOfBirth</td>
-					  <td>@actor.nationality</td>
-					  <td>@actor.height</td>
-					  <td>@actor.gender</td>
 
-				  </tr>
-			  }
-			}.getOrElse {
+	@form(
+		modules.actor.routes.ActorController.list(),
+		'class -> s"ui form ${if(filterForm.hasErrors) "error" else ""}"
+	) {
+
+		<a class="ui button" href="@modules.actor.routes.ActorController.createView()">Create actor</a>
+		<button id="submit" class="ui primary button" type="submit">Filter</button>
+
+		<table class="ui celled table" style="table-layout: fixed">
+			<thead>
 				<tr>
-					<td colspan="2">No actor found</td>
+					<th><a class="header" href="@orderBy(SortableField.firstName)">Name</a></th>
+					<th><a class="header" href="@orderBy(SortableField.lastName)">Last name</a></th>
+					<th><a class="header" href="@orderBy(SortableField.dateOfBirth)">Date of birth</a></th>
+					<th><a class="header" href="@orderBy(SortableField.nationality)">Nationality</a></th>
+					<th><a class="header" href="@orderBy(SortableField.height)">Height</a></th>
+					<th>Gender</th>
+					<th style="width: 70px"></th>
 				</tr>
-			}
-		</tbody>
-	</table>
+			</thead>
+			<tbody>
+				<tr>
+					<td>
+				@inputText(
+					filterForm("firstName"),
+					'_label -> ""
+				)
+				</td>
+					<td>
+					@inputText(
+						filterForm("lastName"),
+						'_label -> ""
+					)
+					</td>
+					<td>
+					@inputText(
+						filterForm("birthDate"),
+						'type -> "date",
+						'_label -> ""
+					)
+					</td>
+					<td>
+					@select(
+						filterForm("nationality"),
+						Country.values.toSeq.sortBy(_.nationality).map{nationalityVal => (nationalityVal.dbName, nationalityVal.nationality)},
+						'_class -> "ui search button",
+						'_label -> ""
+					)
+					</td>
+					<td>
+						@inputText(
+							filterForm("heightMin"),
+							'_label -> "",
+							'type -> "number"
+						)
+						@inputText(
+							filterForm("heightMax"),
+							'_label -> "",
+							'type -> "number"
+						)
+					</td>
+					<td>
+					@select(
+						filterForm("gender"),
+						Gender.values.toSeq.sortBy(_.gender).map{genderVal => (genderVal.dbName, genderVal.gender)},
+						'_class -> "ui search button",
+						'_label -> ""
+					)
+					</td>
+					<td>
+						<a
+						style="border: none; background-color: transparent; padding: 0; cursor: pointer"
+						href="@modules.actor.routes.ActorController.list()">
+							<i class="undo icon"></i>
+						</a>
+					</td>
+				</tr>
+				}
+	@Option(actors).filter(_.nonEmpty).map { actors =>
+		@actors.map { actor =>
+			<tr>
+				<td>@actor.firstName</td>
+				<td>@actor.lastName</td>
+				<td>@actor.dateOfBirth</td>
+				<td>@actor.nationality.nationality</td>
+				<td>@actor.height</td>
+				<td>@actor.gender.gender</td>
+				<td style="width: 70px">
+				@form(
+					modules.actor.routes.ActorController.delete(actor.id),
+					'class -> s"ui form ${if(filterForm.hasErrors) "error" else ""}"
+				) {@CSRF.formField
+					<a style="border: none; background-color: transparent; padding: 0; cursor: pointer"  href="@modules.actor.routes.ActorController.edit(actor.id)">
+						<i class="edit icon"></i>
+					</a>
+					<button style="border: none; background-color: transparent; padding: 0; cursor: pointer" type="submit" onclick="return confirm('Are you sure you want to delete?');">
+						<i class="trash alternate  icon "></i>
+					</button>
+				}@CSRF.formField
+				</td>
+			</tr>
+		}
+	}.getOrElse {
+		<tr>
+			<td colspan="2">No actor found</td>
+		</tr>
+	}
+</tbody>
+</table>
+
 }
